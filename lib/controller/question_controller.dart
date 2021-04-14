@@ -1,4 +1,5 @@
 import 'package:flutter/animation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:quiz_app/models/questions.dart';
 
@@ -13,6 +14,9 @@ class QuestionController extends GetxController
 
   // so that we can access our animation outside
   Animation get animation => this._animation;
+
+  PageController _pageController;
+  PageController get pageController => this._pageController;
 
   List<Question> _questions = sample_data
       .map(
@@ -56,8 +60,18 @@ class QuestionController extends GetxController
         update();
       });
 
-    _animationController.forward();
+    // start our animation
+    // Once 60s is completed go to the next qn
+    _animationController.forward().whenComplete(() => nextQuestion());
+    _pageController = PageController();
     super.onInit();
+  }
+
+  // Called just before the Controller is deleted from memory
+  void onClose() {
+    super.onClose();
+    _animationController.dispose();
+    _pageController.dispose();
   }
 
   void checkAns(Question question, int selectedIndex) {
@@ -70,5 +84,29 @@ class QuestionController extends GetxController
     // It will stop the counter
     _animationController.stop();
     update();
+
+    // once user select an ans after 3s it will go to the next qn
+    Future.delayed(Duration(seconds: 3), () {
+      nextQuestion();
+    });
+  }
+
+  void nextQuestion() {
+    if (_questionNumber.value != _questions.length) {
+      _isAnswered = false;
+      _pageController.nextPage(
+          duration: Duration(milliseconds: 250), curve: Curves.ease);
+
+      // Reset the counter
+      _animationController.reset();
+
+      // Then start it again
+      // Once timer is finish go to the next qn
+      _animationController.forward().whenComplete(() => nextQuestion());
+    }
+  }
+
+  void updateTheQnNum(int index) {
+    _questionNumber.value = index + 1;
   }
 }
