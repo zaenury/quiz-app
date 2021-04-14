@@ -1,17 +1,17 @@
-import 'package:flutter/animation.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:get/state_manager.dart';
 import 'package:quiz_app/models/questions.dart';
+import 'package:quiz_app/screens/score/score_screen.dart';
 
-// we use get package for our state management
+// We use get package for our state management
 
 class QuestionController extends GetxController
     with SingleGetTickerProviderMixin {
-  // Let animated our progress bar
+  // Lets animated our progress bar
 
   AnimationController _animationController;
   Animation _animation;
-
   // so that we can access our animation outside
   Animation get animation => this._animation;
 
@@ -28,7 +28,6 @@ class QuestionController extends GetxController
         ),
       )
       .toList();
-
   List<Question> get questions => this._questions;
 
   bool _isAnswered = false;
@@ -40,7 +39,7 @@ class QuestionController extends GetxController
   int _selectedAns;
   int get selectedAns => this._selectedAns;
 
-  // for more obs please check documentation
+  // for more about obs please check documentation
   RxInt _questionNumber = 1.obs;
   RxInt get questionNumber => this._questionNumber;
 
@@ -51,7 +50,7 @@ class QuestionController extends GetxController
   @override
   void onInit() {
     // Our animation duration is 60 s
-    // // so our plan is to fill the progress bar within 60s
+    // so our plan is to fill the progress bar within 60s
     _animationController =
         AnimationController(duration: Duration(seconds: 60), vsync: this);
     _animation = Tween<double>(begin: 0, end: 1).animate(_animationController)
@@ -62,12 +61,13 @@ class QuestionController extends GetxController
 
     // start our animation
     // Once 60s is completed go to the next qn
-    _animationController.forward().whenComplete(() => nextQuestion());
+    _animationController.forward().whenComplete(nextQuestion);
     _pageController = PageController();
     super.onInit();
   }
 
-  // Called just before the Controller is deleted from memory
+  // called just before the Controller is deleted from memory
+  @override
   void onClose() {
     super.onClose();
     _animationController.dispose();
@@ -81,11 +81,12 @@ class QuestionController extends GetxController
     _selectedAns = selectedIndex;
 
     if (_correctAns == _selectedAns) _numOfCorrectAns++;
+
     // It will stop the counter
     _animationController.stop();
     update();
 
-    // once user select an ans after 3s it will go to the next qn
+    // Once user select an ans after 3s it will go to the next qn
     Future.delayed(Duration(seconds: 3), () {
       nextQuestion();
     });
@@ -102,7 +103,10 @@ class QuestionController extends GetxController
 
       // Then start it again
       // Once timer is finish go to the next qn
-      _animationController.forward().whenComplete(() => nextQuestion());
+      _animationController.forward().whenComplete(nextQuestion);
+    } else {
+      // Get package provide us simple way to naviigate another page
+      Get.to(() => ScoreScreen());
     }
   }
 

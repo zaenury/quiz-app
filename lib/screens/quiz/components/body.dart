@@ -16,6 +16,7 @@ class Body extends StatelessWidget {
     // So that we have access our controller
     QuestionController _questionController = Get.put(QuestionController());
     return Stack(
+      fit: StackFit.expand,
       children: [
         WebsafeSvg.asset("assets/icons/bg.svg", fit: BoxFit.fill),
         SafeArea(
@@ -64,6 +65,7 @@ class Body extends StatelessWidget {
                   onPageChanged: _questionController.updateTheQnNum,
                   itemCount: _questionController.questions.length,
                   itemBuilder: (context, index) => QuestionCard(
+                    // question: _questionController.questions[index],
                     question: _questionController.questions[index],
                   ),
                 ),
